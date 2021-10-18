@@ -1,0 +1,20 @@
+def iqr_outlier(df,numeric_features):
+    import numpy as np
+    from prettytable import PrettyTable
+    print("Original shape of dataframe :", df.shape)
+    display = PrettyTable()
+    display.field_names = ["Feature","IQR","Upper bound","Lower bound","Number of Outliers"]
+    outliers = []
+    for col in numeric_features:
+        q25, q75 = np.percentile(df[col], 25), np.percentile(df[col], 75)
+        iqr = q75 - q25
+        cut_off = iqr * 1.5
+        lower, upper = q25 - cut_off, q75 + cut_off
+        outlier_index = df.loc[(df[col] < lower) | (
+                        df[col] > upper), col].index.values
+        display.add_row([col,iqr,upper,lower,len(outlier_index)]) 
+        df.drop(df[(df[col] > upper) | (df[col] < lower) ].index , inplace=True)
+        
+    print("Shape of dataframe after handling outlier :", df.shape)
+    print(display)
+    return df
